@@ -1,13 +1,3 @@
-# 주제
-
-Terraform AWS 실습
-
-
-# 학습 내용
-
-### STEP 01. Network VPC 생성하기
-
-```bash
 provider "aws" {
   region = "ap-northeast-2"
 }
@@ -21,45 +11,7 @@ resource "aws_vpc" "practice_vpc" {
     Name = "practice-vpc"
   }
 }
-```
 
-아시아 태평양(서울) 리전을 사용하는 aws 프로바이더와, 
-
-- 이름 태그: practice-vpc
-- IPv4: 10.0.0.0/16
-- DNS 호스트 이름 활성화
-
-의 옵션을 가지는 VPC를 생성하는 [main.tf](http://main.tf) 를 작성한다.
-
-```bash
-terraform init
-terraform plan
-terraform apply
-```
-
-이후 위 명령어를 순서대로 실행시켜 작동 시킨다.
-
-```bash
-Do you want to perform these actions?
-  Terraform will perform the actions described above.
-  Only 'yes' will be accepted to approve.
-
-  Enter a value:  yes
-
-aws_vpc.practice_vpc: Creating...
-aws_vpc.practice_vpc: Still creating... [00m10s elapsed]
-aws_vpc.practice_vpc: Creation complete after 12s [id=vpc-06cc0914923aa4ea0]
-
-Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
-```
-
-![스크린샷 2025-11-18 오후 5.11.54.png](attachment:95d58546-9063-42d9-9741-85568e12725e:스크린샷_2025-11-18_오후_5.11.54.png)
-
-AWS 콘솔창의 VPC 메뉴에서 ‘pratice-vpc’ 생성된 것을 확인할 수 있다.
-
-### STEP 02. Subnet 생성하기
-
-```bash
 # Public Subnets
 resource "aws_subnet" "public_2a" {
   vpc_id                  = aws_vpc.practice_vpc.id
@@ -83,6 +35,7 @@ resource "aws_subnet" "public_2c" {
   }
 }
 
+
 # Private Subnets
 resource "aws_subnet" "private_2a" {
   vpc_id            = aws_vpc.practice_vpc.id
@@ -103,15 +56,7 @@ resource "aws_subnet" "private_2c" {
     Name = "practice-sub-pri-2c"
   }
 }
-```
 
-![스크린샷 2025-11-18 오후 5.52.09.png](attachment:096519d1-976a-4c37-a658-2052c7a0e3b7:스크린샷_2025-11-18_오후_5.52.09.png)
-
-서브넷 생성
-
-### STEP 03. Internet Gateway(IGW) 생성하기
-
-```bash
 # Internet Gateway
 resource "aws_internet_gateway" "practice_igw" {
   vpc_id = aws_vpc.practice_vpc.id
@@ -120,13 +65,7 @@ resource "aws_internet_gateway" "practice_igw" {
     Name = "practice-igw"
   }
 }
-```
 
-![스크린샷 2025-11-18 오후 6.13.30.png](attachment:3f5e3c49-278e-46b8-b2b2-9d836c3cd5b1:스크린샷_2025-11-18_오후_6.13.30.png)
-
-### STEP 04. NAT Gateway 생성하기
-
-```bash
 # Elastic IP for NAT Gateway
 resource "aws_eip" "practice_nat_eip" {
   domain = "vpc"
@@ -145,29 +84,8 @@ resource "aws_nat_gateway" "practice_nat_2a" {
     Name = "practice-nat-2a"
   }
 }
-```
 
-탄력적 IP 주소 설정
 
-- 네트워크 경계 그룹: ap-northeast-2
-- 태그 설정
-- Name: practice-nat-eip
-
-NAT 게이트웨이 설정
-
-- 이름: practice-nat-2a
-- 서브넷: practice-sub-pub-2a(10.0.1.0/24)
-- 연결 유형: 퍼블릭
-- 탄력적 IP 할당: practice-nat-eip
-
-![스크린샷 2025-11-18 오후 6.26.21.png](attachment:ad2a48a2-8a95-4d0b-87fc-bcd71b7181ae:스크린샷_2025-11-18_오후_6.26.21.png)
-
-![스크린샷 2025-11-18 오후 6.25.41.png](attachment:971cb8e0-43fe-4b7a-9365-c7e344557eb1:스크린샷_2025-11-18_오후_6.25.41.png)
-
-적용된 것을 확인
-
-### STEP 05. 라우팅 테이블 생성하기
-```bash
 # Public Route Table
 resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.practice_vpc.id
@@ -221,6 +139,3 @@ resource "aws_route_table_association" "private_2c_assoc" {
   subnet_id      = aws_subnet.private_2c.id
   route_table_id = aws_route_table.private_rt.id
 }
-```
-
-![스크린샷 2025-11-18 오후 7.12.12.png](attachment:17030c31-bb43-4c40-a16e-b0fd853c0eeb:스크린샷_2025-11-18_오후_7.12.12.png)
